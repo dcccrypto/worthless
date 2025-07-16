@@ -47,6 +47,72 @@
             object-fit: cover;
         }
 
+        /* Audio Enabler Overlay */
+        #audio-enabler {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10000;
+            transition: opacity 0.3s ease;
+        }
+
+        #audio-enabler.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .audio-prompt {
+            text-align: center;
+            color: white;
+            animation: audioPromptPulse 2s ease-in-out infinite;
+        }
+
+        .audio-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: audioIconBounce 1s ease-in-out infinite;
+        }
+
+        .audio-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .audio-subtext {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .audio-hint {
+            font-size: 0.9rem;
+            opacity: 0.5;
+            margin-top: 1rem;
+            animation: audioHintFlicker 3s ease-in-out infinite;
+        }
+
+        @keyframes audioHintFlicker {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes audioPromptPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes audioIconBounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
         /* Main Content */
         #main-content {
             opacity: 0;
@@ -394,6 +460,15 @@
             <source src="intro.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
+        <!-- Audio Enabler Overlay -->
+        <div id="audio-enabler" onclick="enableAudio()">
+            <div class="audio-prompt">
+                <div class="audio-icon">🔊</div>
+                                 <div class="audio-text">Click to Enable Audio</div>
+                 <div class="audio-subtext">Experience the full worthless experience</div>
+                 <div class="audio-hint">⚡ Sound makes it worth...less</div>
+            </div>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -437,17 +512,116 @@
         const mainContent = document.getElementById('main-content');
         const introVideo = document.getElementById('intro-video');
 
-        // Handle video intro
-        introVideo.addEventListener('loadeddata', () => {
-            // Unmute and play with sound
+        let audioEnabled = false;
+        let videoCanPlay = false;
+
+        // Function to enable audio and start video
+        window.enableAudio = function() {
+            // Create an audio context to unlock audio on iOS/mobile
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                const audioContext = new AudioContext();
+                
+                // Resume if suspended
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                // Play a silent sound to unlock audio
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                gainNode.gain.value = 0;
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.1);
+            }
+            
+            // Hide the audio enabler overlay with animation
+            const audioEnabler = document.getElementById('audio-enabler');
+            audioEnabler.classList.add('hidden');
+            
+            // Enable audio and restart video
+            audioEnabled = true;
             introVideo.muted = false;
-            introVideo.play().catch(e => {
-                console.log('Auto-play failed, trying muted version');
+            introVideo.volume = 1.0; // Ensure full volume
+            introVideo.currentTime = 0;
+            
+            // Multiple attempts to ensure audio plays
+            let playAttempts = 0;
+            const maxAttempts = 3;
+            
+            function attemptPlay() {
+                playAttempts++;
+                const playPromise = introVideo.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('🔊 Video playing with audio enabled successfully!');
+                        // Verify audio is actually working
+                        setTimeout(() => {
+                            if (introVideo.muted) {
+                                introVideo.muted = false;
+                            }
+                        }, 100);
+                    }).catch(error => {
+                        console.log(`Play attempt ${playAttempts} failed:`, error);
+                        if (playAttempts < maxAttempts) {
+                            // Try again after a short delay
+                            setTimeout(attemptPlay, 200);
+                        } else {
+                            // Final fallback: continue without audio but log the issue
+                            console.log('All audio attempts failed - continuing muted');
+                            introVideo.muted = true;
+                            introVideo.play();
+                        }
+                    });
+                }
+            }
+            
+            attemptPlay();
+        };
+
+        // Check if autoplay with audio is possible
+        async function checkAutoplaySupport() {
+            try {
+                // Test if we can play audio immediately
+                const testVideo = document.createElement('video');
+                testVideo.muted = false;
+                testVideo.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMWRhc2g='; // tiny test video
+                
+                await testVideo.play();
+                testVideo.pause();
+                
+                // If we get here, autoplay audio works
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Initialize video handling
+        introVideo.addEventListener('loadeddata', async () => {
+            videoCanPlay = true;
+            
+            // Check if autoplay audio is supported
+            const autoplaySupported = await checkAutoplaySupport();
+            
+            if (autoplaySupported) {
+                // Hide audio enabler and play with sound immediately
+                document.getElementById('audio-enabler').classList.add('hidden');
+                audioEnabled = true;
+                introVideo.muted = false;
+                introVideo.play();
+            } else {
+                // Show audio enabler overlay
+                // Video will autoplay muted in background
                 introVideo.muted = true;
                 introVideo.play();
-            });
+            }
         });
 
+        // Handle video end
         introVideo.addEventListener('ended', () => {
             // Fade out intro and show main content
             introSection.style.opacity = '0';
@@ -458,8 +632,15 @@
             }, 500);
         });
 
-        // Skip intro if clicked
-        introSection.addEventListener('click', () => {
+        // Skip intro functionality (but preserve audio enabler)
+        introVideo.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (audioEnabled) {
+                skipIntro();
+            }
+        });
+
+        function skipIntro() {
             introVideo.pause();
             introSection.style.opacity = '0';
             setTimeout(() => {
@@ -467,7 +648,64 @@
                 mainContent.classList.add('visible');
                 loadStats();
             }, 500);
+        }
+
+        // Try to detect user interaction for audio unlocking
+        document.addEventListener('click', function unlockAudio() {
+            if (!audioEnabled && videoCanPlay) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    const audioContext = new AudioContext();
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                }
+            }
+        }, { once: true });
+
+        // Additional audio unlock methods for stubborn browsers
+        ['touchstart', 'touchend', 'mousedown', 'keydown'].forEach(event => {
+            document.addEventListener(event, function audioUnlock() {
+                if (!audioEnabled && videoCanPlay) {
+                    // Try to unlock audio context
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        const context = new AudioContext();
+                        if (context.state === 'suspended') {
+                            context.resume().then(() => {
+                                console.log('Audio context resumed via', event);
+                            });
+                        }
+                        
+                        // Create a brief silent audio buffer to unlock
+                        const buffer = context.createBuffer(1, 1, 22050);
+                        const source = context.createBufferSource();
+                        source.buffer = buffer;
+                        source.connect(context.destination);
+                        source.start();
+                    }
+                }
+            }, { once: true });
         });
+
+        // Aggressive audio enabling for when all else fails
+        window.forceEnableAudio = function() {
+            console.log('🚀 Forcing audio enable...');
+            audioEnabled = true;
+            introVideo.muted = false;
+            introVideo.volume = 1.0;
+            
+            // Brute force play
+            introVideo.play().then(() => {
+                console.log('🎵 Force audio enable successful!');
+            }).catch(e => {
+                console.log('Force enable failed, but trying anyway:', e);
+                // Even if it fails, unmute it anyway
+                setTimeout(() => {
+                    introVideo.muted = false;
+                }, 500);
+            });
+        };
 
         // Copy CA function
         function copyCA() {
