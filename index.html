@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WORTHLESS - The Most worthless Coin</title>
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="icon" href="favicon.ico">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Video Intro Section */
+        #intro-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #intro-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Main Content */
+        #main-content {
+            opacity: 0;
+            transition: opacity 1s ease-in;
+            min-height: 100vh;
+            background: #000;
+        }
+
+        #main-content.visible {
+            opacity: 1;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            background-image: url('hero.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            pointer-events: none;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { background: rgba(0, 0, 0, 0.7); }
+            50% { background: rgba(0, 0, 0, 0.5); }
+        }
+
+        .logo {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 2rem;
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite, rotate 20s linear infinite;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .logo:hover {
+            transform: scale(1.1) rotateY(180deg);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .main-title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #fff;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            animation: textPulse 3s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes textPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            opacity: 0.8;
+        }
+
+        /* Stats and CA Container */
+        .info-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 2rem 0;
+        }
+
+                 .card {
+             background: rgba(0,0,0,0.8);
+             border: 1px solid rgba(255,255,255,0.1);
+             border-radius: 20px;
+             padding: 2rem;
+             backdrop-filter: blur(10px);
+             transition: all 0.4s ease;
+             position: relative;
+             overflow: hidden;
+         }
+
+         .card::before {
+             content: '';
+             position: absolute;
+             top: -50%;
+             left: -50%;
+             width: 200%;
+             height: 200%;
+             background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+             transform: rotate(45deg);
+             transition: all 0.5s ease;
+             opacity: 0;
+         }
+
+         .card:hover {
+             background: rgba(0,0,0,0.9);
+             border-color: rgba(255,255,255,0.3);
+             transform: translateY(-8px) scale(1.02);
+             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+         }
+
+         .card:hover::before {
+             opacity: 1;
+             animation: shimmer 1.5s ease-in-out;
+         }
+
+         @keyframes shimmer {
+             0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+             100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+         }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .ca-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .ca-address {
+            background: rgba(0,0,0,0.5);
+            padding: 1rem;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            flex: 1;
+            border: 1px solid rgba(255,255,255,0.1);
+            word-break: break-all;
+        }
+
+                 .copy-btn {
+             background: linear-gradient(45deg, #1a1a1a, #333);
+             border: none;
+             padding: 1rem;
+             border-radius: 10px;
+             color: white;
+             cursor: pointer;
+             font-weight: bold;
+             transition: all 0.3s ease;
+             position: relative;
+             overflow: hidden;
+         }
+
+         .copy-btn::before {
+             content: '';
+             position: absolute;
+             top: 50%;
+             left: 50%;
+             width: 0;
+             height: 0;
+             background: rgba(255,255,255,0.2);
+             border-radius: 50%;
+             transform: translate(-50%, -50%);
+             transition: all 0.3s ease;
+         }
+
+         .copy-btn:hover {
+             background: linear-gradient(45deg, #333, #555);
+             transform: scale(1.08);
+         }
+
+         .copy-btn:hover::before {
+             width: 100%;
+             height: 100%;
+         }
+
+         .copy-btn.copied {
+             background: linear-gradient(45deg, #4CAF50, #45a049);
+             animation: copyPulse 0.6s ease-out;
+         }
+
+         @keyframes copyPulse {
+             0% { transform: scale(1); }
+             50% { transform: scale(1.15); }
+             100% { transform: scale(1); }
+         }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+                 .stat-item {
+             background: rgba(0,0,0,0.6);
+             padding: 1rem;
+             border-radius: 10px;
+             border: 1px solid rgba(255,255,255,0.1);
+             transition: all 0.3s ease;
+             cursor: pointer;
+             position: relative;
+             overflow: hidden;
+         }
+
+         .stat-item:hover {
+             background: rgba(0,0,0,0.8);
+             border-color: rgba(255,255,255,0.3);
+             transform: translateY(-3px);
+         }
+
+         .stat-item::after {
+             content: '';
+             position: absolute;
+             bottom: 0;
+             left: 0;
+             right: 0;
+             height: 2px;
+             background: linear-gradient(90deg, #4CAF50, #81C784);
+             transform: scaleX(0);
+             transition: transform 0.3s ease;
+         }
+
+         .stat-item:hover::after {
+             transform: scaleX(1);
+         }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        /* X Community Button */
+        .x-button {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: linear-gradient(45deg, #1DA1F2, #0d8bd9);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .x-button:hover {
+            background: linear-gradient(45deg, #0d8bd9, #1DA1F2);
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .x-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .info-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .ca-section {
+                flex-direction: column;
+            }
+            
+            .ca-address {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Hide scrollbar but keep functionality */
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Intro Video Section -->
+    <div id="intro-section">
+        <video id="intro-video" autoplay muted playsinline>
+            <source src="intro.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div class="hero">
+            <img src="logo.png" alt="Worthless Logo" class="logo">
+            <h1 class="main-title">THIS WEBSITE IS WORTHLESS</h1>
+            <p class="subtitle">The most worthless coin on Solana</p>
+            
+            <div class="info-container">
+                <!-- Contract Address Card -->
+                <div class="card">
+                    <h3 class="card-title">Contract Address (CA)</h3>
+                    <div class="ca-section">
+                        <div class="ca-address" id="ca-address">iUdvUaxyRHh8PYVcmkgBpSJu5evpW6jsSLv8RCpmoon</div>
+                        <button class="copy-btn" onclick="copyCA()">COPY</button>
+                    </div>
+                </div>
+
+                <!-- Live Stats Card -->
+                <div class="card">
+                    <h3 class="card-title">Live Stats</h3>
+                    <div id="stats-container">
+                        <div class="loading"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- X Community Button -->
+            <a href="https://x.com/i/communities/1945373257416273952" target="_blank" class="x-button">
+                <svg class="x-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1227">
+                    <path d="M714.163 519.284 1160.89 0h-105.86L667.137 450.887 357.328 0H0l468.492 681.821L0 1226.37h105.866l409.625-476.152 327.181 476.152H1200L714.137 519.284h.026ZM569.165 687.828l-47.468-67.894-377.686-540.24h162.604l304.797 435.991 47.468 67.894 396.2 566.721H892.476L569.165 687.854v-.026Z"/>
+                </svg>
+                Join X Community
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const introSection = document.getElementById('intro-section');
+        const mainContent = document.getElementById('main-content');
+        const introVideo = document.getElementById('intro-video');
+
+        // Handle video intro
+        introVideo.addEventListener('loadeddata', () => {
+            // Unmute and play with sound
+            introVideo.muted = false;
+            introVideo.play().catch(e => {
+                console.log('Auto-play failed, trying muted version');
+                introVideo.muted = true;
+                introVideo.play();
+            });
+        });
+
+        introVideo.addEventListener('ended', () => {
+            // Fade out intro and show main content
+            introSection.style.opacity = '0';
+            setTimeout(() => {
+                introSection.style.display = 'none';
+                mainContent.classList.add('visible');
+                loadStats();
+            }, 500);
+        });
+
+        // Skip intro if clicked
+        introSection.addEventListener('click', () => {
+            introVideo.pause();
+            introSection.style.opacity = '0';
+            setTimeout(() => {
+                introSection.style.display = 'none';
+                mainContent.classList.add('visible');
+                loadStats();
+            }, 500);
+        });
+
+        // Copy CA function
+        function copyCA() {
+            const caText = document.getElementById('ca-address').textContent;
+            navigator.clipboard.writeText(caText).then(() => {
+                const copyBtn = document.querySelector('.copy-btn');
+                copyBtn.textContent = 'COPIED!';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = 'COPY';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Load live stats
+        async function loadStats() {
+            try {
+                const response = await fetch('https://api.dexscreener.com/tokens/v1/solana/iUdvUaxyRHh8PYVcmkgBpSJu5evpW6jsSLv8RCpmoon');
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const token = data[0];
+                    displayStats(token);
+                } else {
+                    document.getElementById('stats-container').innerHTML = '<p>No data available</p>';
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                document.getElementById('stats-container').innerHTML = '<p>Error loading stats</p>';
+            }
+        }
+
+                 function displayStats(token) {
+             const statsHtml = `
+                 <div class="stats-grid">
+                     <div class="stat-item">
+                         <div class="stat-label">Price USD</div>
+                         <div class="stat-value">$${parseFloat(token.priceUsd).toFixed(6)}</div>
+                     </div>
+                     <div class="stat-item">
+                         <div class="stat-label">Market Cap</div>
+                         <div class="stat-value">$${formatNumber(token.marketCap)}</div>
+                     </div>
+                     <div class="stat-item">
+                         <div class="stat-label">24h Volume</div>
+                         <div class="stat-value">$${formatNumber(token.volume.h24)}</div>
+                     </div>
+                 </div>
+             `;
+             
+             document.getElementById('stats-container').innerHTML = statsHtml;
+         }
+
+        function formatNumber(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toFixed(2);
+        }
+
+        // Add negative price change styling
+        const style = document.createElement('style');
+        style.textContent = `
+            .stat-value.negative {
+                color: #f44336 !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Auto-refresh stats every 30 seconds
+        setInterval(loadStats, 30000);
+
+        // Mouse movement parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            // Parallax effect on hero background
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                const moveX = (mouseX - 0.5) * 20;
+                const moveY = (mouseY - 0.5) * 20;
+                hero.style.backgroundPosition = `${50 + moveX}% ${50 + moveY}%`;
+            }
+            
+            // Subtle movement on cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                const moveX = (mouseX - 0.5) * (5 + index * 2);
+                const moveY = (mouseY - 0.5) * (5 + index * 2);
+                card.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+            
+            // Logo follows mouse subtly
+            const logo = document.querySelector('.logo');
+            if (logo) {
+                const moveX = (mouseX - 0.5) * 10;
+                const moveY = (mouseY - 0.5) * 10;
+                logo.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            }
+        });
+
+        // Add breathing effect to main title
+        let breathingInterval = setInterval(() => {
+            const title = document.querySelector('.main-title');
+            if (title) {
+                title.style.animation = 'none';
+                setTimeout(() => {
+                    title.style.animation = 'textPulse 3s ease-in-out infinite';
+                }, 100);
+            }
+        }, 8000);
+
+        // Random glitch effect on title
+        setInterval(() => {
+            const title = document.querySelector('.main-title');
+            if (title && Math.random() < 0.1) { // 10% chance
+                title.style.filter = 'hue-rotate(180deg)';
+                setTimeout(() => {
+                    title.style.filter = 'none';
+                }, 200);
+            }
+        }, 3000);
+    </script>
+</body>
+</html> 
